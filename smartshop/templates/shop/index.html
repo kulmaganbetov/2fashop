@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная - SmartShop{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="jumbotron bg-light p-5 rounded-3 mb-4">
+        <h1 class="display-4">Добро пожаловать в SmartShop!</h1>
+        <p class="lead">Лучшие смартфоны по выгодным ценам. Официальная гарантия. Быстрая доставка по всей России.</p>
+        <hr class="my-4">
+        <p>Выбирайте из широкого ассортимента смартфонов ведущих брендов.</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'shop:catalog' %}" role="button">
+            <i class="fas fa-shopping-bag"></i> Перейти в каталог
+        </a>
+        <a class="btn btn-success btn-lg" href="{% url 'ai_assistant:chat' %}" role="button">
+            <i class="fas fa-robot"></i> Спросить консультанта
+        </a>
+    </div>
+
+    <!-- Featured Products -->
+    <h2 class="mb-4">Популярные товары</h2>
+    <div class="row">
+        {% for smartphone in smartphones %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                {% if smartphone.image %}
+                    <img src="{{ smartphone.image.url }}" class="card-img-top" alt="{{ smartphone.name }}" style="height: 200px; object-fit: contain;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-mobile-alt fa-4x text-muted"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ smartphone.name }}</h5>
+                    <p class="card-text text-muted">{{ smartphone.brand }} {{ smartphone.model }}</p>
+                    <p class="card-text">
+                        <strong class="text-primary">{{ smartphone.price }} ₽</strong>
+                    </p>
+                    {% if smartphone.in_stock %}
+                        <span class="badge bg-success">В наличии</span>
+                    {% else %}
+                        <span class="badge bg-danger">Нет в наличии</span>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'shop:product_detail' smartphone.slug %}" class="btn btn-sm btn-outline-primary w-100">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Товары временно отсутствуют. Пожалуйста, зайдите позже.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Features -->
+    <div class="row mt-5 mb-4">
+        <div class="col-md-3">
+            <div class="text-center">
+                <i class="fas fa-truck fa-3x text-primary mb-3"></i>
+                <h5>Быстрая доставка</h5>
+                <p>Доставка по всей России</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                <h5>Гарантия качества</h5>
+                <p>Официальная гарантия 1 год</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <i class="fas fa-credit-card fa-3x text-primary mb-3"></i>
+                <h5>Удобная оплата</h5>
+                <p>Наличные или картой</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <i class="fas fa-headset fa-3x text-primary mb-3"></i>
+                <h5>Поддержка 24/7</h5>
+                <p>Всегда готовы помочь</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

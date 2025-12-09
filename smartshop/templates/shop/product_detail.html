@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ smartphone.name }} - SmartShop{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'shop:index' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'shop:catalog' %}">Каталог</a></li>
+            <li class="breadcrumb-item active">{{ smartphone.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-6">
+            {% if smartphone.image %}
+                <img src="{{ smartphone.image.url }}" class="img-fluid" alt="{{ smartphone.name }}">
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <i class="fas fa-mobile-alt fa-10x text-muted"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Product Info -->
+        <div class="col-md-6">
+            <h1>{{ smartphone.name }}</h1>
+            <p class="text-muted">{{ smartphone.brand }} {{ smartphone.model }}</p>
+
+            <h3 class="text-primary my-3">{{ smartphone.price }} ₽</h3>
+
+            {% if smartphone.in_stock %}
+                <p class="text-success">
+                    <i class="fas fa-check-circle"></i> В наличии ({{ smartphone.stock }} шт.)
+                </p>
+
+                <!-- Add to Cart Form -->
+                <form action="{% url 'orders:cart_add' smartphone.id %}" method="post" class="mb-3">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input type="number" name="quantity" value="1" min="1" max="{{ smartphone.stock }}" class="form-control">
+                        </div>
+                        <div class="col-md-9">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-cart-plus"></i> Добавить в корзину
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            {% else %}
+                <p class="text-danger">
+                    <i class="fas fa-times-circle"></i> Нет в наличии
+                </p>
+            {% endif %}
+
+            <hr>
+
+            <!-- Specifications -->
+            <h4>Характеристики</h4>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td><strong>Бренд</strong></td>
+                        <td>{{ smartphone.brand }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Модель</strong></td>
+                        <td>{{ smartphone.model }}</td>
+                    </tr>
+                    {% if smartphone.screen_size %}
+                    <tr>
+                        <td><strong>Диагональ экрана</strong></td>
+                        <td>{{ smartphone.screen_size }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if smartphone.ram %}
+                    <tr>
+                        <td><strong>Оперативная память</strong></td>
+                        <td>{{ smartphone.ram }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if smartphone.storage %}
+                    <tr>
+                        <td><strong>Встроенная память</strong></td>
+                        <td>{{ smartphone.storage }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if smartphone.processor %}
+                    <tr>
+                        <td><strong>Процессор</strong></td>
+                        <td>{{ smartphone.processor }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if smartphone.camera %}
+                    <tr>
+                        <td><strong>Камера</strong></td>
+                        <td>{{ smartphone.camera }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if smartphone.battery %}
+                    <tr>
+                        <td><strong>Батарея</strong></td>
+                        <td>{{ smartphone.battery }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if smartphone.os %}
+                    <tr>
+                        <td><strong>Операционная система</strong></td>
+                        <td>{{ smartphone.os }}</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Description -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h4>Описание</h4>
+            <p>{{ smartphone.description }}</p>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h4>Похожие товары</h4>
+        </div>
+        {% for product in related_products %}
+        <div class="col-md-3">
+            <div class="card">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: contain;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-mobile-alt fa-4x text-muted"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ product.name }}</h6>
+                    <p class="card-text"><strong>{{ product.price }} ₽</strong></p>
+                    <a href="{% url 'shop:product_detail' product.slug %}" class="btn btn-sm btn-outline-primary w-100">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
