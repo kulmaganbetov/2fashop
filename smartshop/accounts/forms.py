@@ -3,6 +3,7 @@ Forms for accounts app.
 """
 from django import forms
 from .models import User
+from .utils import normalize_phone_number
 
 
 class PhoneLoginForm(forms.Form):
@@ -17,6 +18,11 @@ class PhoneLoginForm(forms.Form):
             'required': True,
         })
     )
+
+    def clean_phone_number(self):
+        """Normalize phone number format."""
+        phone_number = self.cleaned_data.get('phone_number')
+        return normalize_phone_number(phone_number)
 
 
 class OTPVerificationForm(forms.Form):

@@ -36,7 +36,12 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 Для привязки вашего аккаунта к номеру телефона:
 1. Отправьте /link
-2. Введите ваш номер телефона в формате: +79991234567
+2. Введите ваш номер телефона
+
+Номер можно ввести в любом формате:
+• +79991234567
+• +7 999 123 45 67
+• +7 (999) 123-45-67
 
 После этого вы сможете получать коды подтверждения при входе на сайт.
     """
@@ -46,7 +51,11 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def link_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /link command."""
     await update.message.reply_text(
-        "Отправьте ваш номер телефона в формате: +79991234567"
+        "Отправьте ваш номер телефона.\n\n"
+        "Можно в любом формате, например:\n"
+        "• +79991234567\n"
+        "• +7 999 123 45 67\n"
+        "• +7 (999) 123-45-67"
     )
     context.user_data['awaiting_phone'] = True
 
@@ -54,13 +63,15 @@ async def link_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle text messages."""
     from asgiref.sync import sync_to_async
+    from smartshop.accounts.utils import normalize_phone_number
 
     user = update.effective_user
     text = update.message.text
 
     # Check if we're waiting for phone number
     if context.user_data.get('awaiting_phone'):
-        phone_number = text.strip()
+        # Normalize phone number (remove spaces, parentheses, etc.)
+        phone_number = normalize_phone_number(text.strip())
 
         # Basic validation
         if phone_number.startswith('+') and len(phone_number) >= 11:
