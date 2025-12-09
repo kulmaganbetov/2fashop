@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Каталог - SmartShop{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Каталог смартфонов</h1>
+
+    <!-- Filters and Search -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="q" class="form-control" placeholder="Поиск..." value="{{ query|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="category" class="form-select">
+                        <option value="">Все категории</option>
+                        {% for category in categories %}
+                            <option value="{{ category.slug }}" {% if current_category == category.slug %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="sort" class="form-select">
+                        <option value="">Сортировка</option>
+                        <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Цена: по возрастанию</option>
+                        <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Цена: по убыванию</option>
+                        <option value="name" {% if current_sort == 'name' %}selected{% endif %}>По названию</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Найти
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="row">
+        {% for smartphone in smartphones %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if smartphone.image %}
+                    <img src="{{ smartphone.image.url }}" class="card-img-top" alt="{{ smartphone.name }}" style="height: 250px; object-fit: contain;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                        <i class="fas fa-mobile-alt fa-5x text-muted"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ smartphone.name }}</h5>
+                    <p class="card-text text-muted">{{ smartphone.brand }} {{ smartphone.model }}</p>
+                    <p class="card-text text-truncate">{{ smartphone.description|truncatewords:15 }}</p>
+                    <p class="card-text">
+                        <strong class="text-primary fs-4">{{ smartphone.price }} ₽</strong>
+                    </p>
+                    {% if smartphone.in_stock %}
+                        <span class="badge bg-success">В наличии ({{ smartphone.stock }} шт.)</span>
+                    {% else %}
+                        <span class="badge bg-danger">Нет в наличии</span>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'shop:product_detail' smartphone.slug %}" class="btn btn-outline-primary w-100">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> По вашему запросу ничего не найдено.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if smartphones.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if smartphones.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ smartphones.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}">
+                        Назад
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in smartphones.paginator.page_range %}
+                {% if smartphones.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}">
+                            {{ num }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if smartphones.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ smartphones.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}">
+                        Вперёд
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
