@@ -9,16 +9,18 @@ from django.utils import timezone
 class UserManager(BaseUserManager):
     """Custom user manager for phone-based authentication."""
 
-    def create_user(self, phone_number, **extra_fields):
+    def create_user(self, phone_number, password=None, **extra_fields):
         """Create and save a regular user."""
         if not phone_number:
             raise ValueError('Phone number is required')
 
         user = self.model(phone_number=phone_number, **extra_fields)
+        if password:
+            user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, phone_number, **extra_fields):
+    def create_superuser(self, phone_number, password=None, **extra_fields):
         """Create and save a superuser."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
@@ -29,13 +31,17 @@ class UserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self.create_user(phone_number, **extra_fields)
+        if not password:
+            raise ValueError('Superuser must have a password.')
+
+        return self.create_user(phone_number, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     """Custom user model with phone number authentication."""
 
     phone_number = models.CharField(max_length=20, unique=True, verbose_name='Номер телефона')
+    password = models.CharField(max_length=128, blank=True, verbose_name='Пароль')
     telegram_id = models.BigIntegerField(null=True, blank=True, unique=True, verbose_name='Telegram ID')
     first_name = models.CharField(max_length=150, blank=True, verbose_name='Имя')
     last_name = models.CharField(max_length=150, blank=True, verbose_name='Фамилия')

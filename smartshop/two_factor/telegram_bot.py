@@ -53,6 +53,8 @@ async def link_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle text messages."""
+    from asgiref.sync import sync_to_async
+
     user = update.effective_user
     text = update.message.text
 
@@ -65,8 +67,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # Import here to avoid circular imports
             from .services import OTPService
 
-            # Link Telegram account
-            OTPService.link_telegram_account(
+            # Link Telegram account (use sync_to_async for Django ORM)
+            await sync_to_async(OTPService.link_telegram_account)(
                 phone_number=phone_number,
                 telegram_id=user.id,
                 username=user.username,
